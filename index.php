@@ -6,12 +6,27 @@ require 'Card.php';
 require 'Deck.php';
 require 'Player.php';
 require 'Blackjack.php';
+require 'Dealer.php';
 
 session_start();
 
-$blackJack = new Blackjack();
-$_SESSION["blackJack"] = $blackJack;
+if (!isset($_SESSION["blackJack"])) {
+    $blackJack = new Blackjack();
+    $_SESSION["blackJack"] = $blackJack;
+}
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_POST["hit"]) {
+        $_SESSION["blackJack"]->getPlayer()->hit($_SESSION["blackJack"]->getDeck());
+        return $_SESSION["blackJack"]->getPlayer()->hasLost();
+    }
+    if ($_POST["stand"]) {
+        $_SESSION["blackJack"]->getDealer()->hit($_SESSION["blackJack"]->getDeck());
+    }
+    if ($_POST["surrender"]) {
+        $_SESSION["blackJack"]->getPlayer()->surrender();
+    }
+}
 
 /*$deck = new Deck();
 $deck->shuffle();

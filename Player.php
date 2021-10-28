@@ -5,7 +5,6 @@ class Player
 {
     private $lost = false;
 
-    //
     private const WIN_THRESHOLD = 21;
 
     /** @var Card[]  */
@@ -13,20 +12,21 @@ class Player
 
     public function __construct(Deck $deck) {
         for ($i = 0; $i <2 ; $i++) {
-            $cards[] = $deck->drawCard();
+            $this->cards[] = $deck->drawCard();
         }
     }
 
-    //what is hit doing?
-    public function hit($deck) : Deck {
-        $cards[] = $deck->drawCard();
+    public function hit(Deck $deck) : void {
+        $this->cards[] = $deck->drawCard();
         if ($this->getScore() > self::WIN_THRESHOLD) {
-            $this->lost = true;
+            $this->surrender();
         }
     }
-    public function surrender() : bool {
+
+    public function surrender() : void {
         $this->lost = true;
     }
+
     public function getScore() : int {
         $score = 0;
         foreach($this->cards as $card) {
@@ -34,8 +34,17 @@ class Player
         }
         return $score;
     }
+
     public function hasLost() : bool {
         return $this->lost;
+    }
+
+    public function showMeTheMoney() : string {
+        $money = "";
+        foreach($this->cards as $card) {
+             $money .= '<h1>' . $card->getUnicodeCharacter(true) . '</h1> ';
+        }
+        return $money;
     }
 
 
