@@ -8,25 +8,60 @@ require 'Player.php';
 require 'Blackjack.php';
 require 'Dealer.php';
 
+$player = "Player";
+$dealer = "Dealer";
+$whoWon = "";
+
+function whoWon ($winner, $loser) : string {
+    return $winner . " won! " . $loser . " lost :'(.";
+}
+
+function refreshPage ($sec) : void {
+    $page = $_SERVER['PHP_SELF'];
+    header("Refresh: $sec; url=$page");
+}
+
 session_start();
 
-if (!isset($_SESSION["blackJack"])) {
+if (isset($_SESSION["blackJack"]) && !empty($_SESSION["blackJack"])) {
+    $blackJack = $_SESSION["blackJack"];
+} else {
     $blackJack = new Blackjack();
-    $_SESSION["blackJack"] = $blackJack;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if ($_POST["hit"]) {
-        $_SESSION["blackJack"]->getPlayer()->hit($_SESSION["blackJack"]->getDeck());
-        return $_SESSION["blackJack"]->getPlayer()->hasLost();
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST["hit"])) {
+        $blackJack->getPlayer()->hit($blackJack->getDeck());
     }
-    if ($_POST["stand"]) {
-        $_SESSION["blackJack"]->getDealer()->hit($_SESSION["blackJack"]->getDeck());
+    if (isset($_POST["stand"])) {
+        $blackJack->getDealer()->hit($blackJack->getDeck());
+        $playerScore = $blackJack->getPlayer()->getScore();
+        $dealerScore = $blackJack->getDealer()->getScore();
+        if ($playerScore > $dealerScore) {
+            $blackJack->getDealer()->surrender();
+        } else {
+           $blackJack->getPlayer()->surrender();
+        }
     }
-    if ($_POST["surrender"]) {
-        $_SESSION["blackJack"]->getPlayer()->surrender();
+    if (isset($_POST["surrender"])) {
+        $blackJack->getPlayer()->surrender();
     }
 }
+
+if ($blackJack->getPlayer()->hasLost()) {
+    $whoWon = whoWon($dealer, $player);
+} else if ($blackJack->getDealer()->hasLost()) {
+    $whoWon = whoWon($player, $dealer);
+}
+
+$_SESSION["blackJack"] = $blackJack;
+
+if (!empty($whoWon)) {
+    session_unset();
+    refreshPage("2");
+}
+
+
 
 /*$deck = new Deck();
 $deck->shuffle();

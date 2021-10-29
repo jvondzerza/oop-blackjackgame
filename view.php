@@ -6,17 +6,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<?php
+echo '<h2>' . $whoWon . '</h2>';
+?>
 <div id="game">
     <form method="post">
         <section id="player">
-            <div><?php echo $_SESSION["blackJack"]->getPlayer()->showMeTheMoney(); ?></div>
-            <div><?php echo $_SESSION["blackJack"]->getPlayer()->getScore(); ?></div>
+            <h3>Player</h3>
+            <div class="cards"><?php echo $blackJack->getPlayer()->showMeTheMoney(); ?></div>
+            <p><?php echo $blackJack->getPlayer()->getScore(); ?></p>
         </section>
         <section id="dealer">
-            <div><?php echo $_SESSION["blackJack"]->getDealer()->showMeTheMoney(); ?></div>
-            <div><?php echo $_SESSION["blackJack"]->getDealer()->getScore(); ?></div>
+            <h3>Dealer</h3>
+            <div class="cards"><?php echo $blackJack->getDealer()->showMeTheMoney(); ?></div>
+            <p><?php echo $blackJack->getDealer()->getScore(); ?></p>
         </section>
         <section id="game-interface">
             <input type="submit" name="hit" value="hit">

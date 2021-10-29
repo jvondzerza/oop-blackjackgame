@@ -19,7 +19,7 @@ class Player
     public function hit(Deck $deck) : void {
         $this->cards[] = $deck->drawCard();
         if ($this->getScore() > self::WIN_THRESHOLD) {
-            $this->surrender();
+            $this->lost = true;
         }
     }
 
