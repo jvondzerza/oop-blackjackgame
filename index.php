@@ -46,12 +46,12 @@ $playerScore = $blackJack->getPlayer()->getScore();
 $dealerScore = $blackJack->getDealer()->getScore();
 
 if ($playerScore === WIN_THRESHOLD) {
-    if ($playerScore === $dealerScore) {
-        $blackJack->getDealer()->surrender();
-        $blackJack->getPlayer()->surrender();
-    }
     $blackJack->getDealer()->surrender();
-    $chips += 10;
+    if ($playerScore === $dealerScore) {
+        $blackJack->getPlayer()->surrender();
+    } else {
+        $chips += 10;
+    }
 } else if ($dealerScore === WIN_THRESHOLD) {
     $blackJack->getPlayer()->surrender();
     $chips -= 5;

@@ -21,7 +21,7 @@
 
 
 ## from
-![strugglez](readme-img.png)
+![strugglez](imgs/readme-img.png)
 
 ## to
-![yay](readme-img2.png)
+![yay](imgs/readme-img-2.png)
