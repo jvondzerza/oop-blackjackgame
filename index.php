@@ -8,12 +8,13 @@ require 'Player.php';
 require 'Blackjack.php';
 require 'Dealer.php';
 
-$player = "Player";
-$dealer = "Dealer";
+$player = "Player won.";
+$dealer = "Dealer won.";
 $whoWon = "";
+const WIN_THRESHOLD = 21;
 
-function whoWon ($winner) : string {
-    return $winner . " won.";
+function whoWon ($winner = "Tied game.") : string {
+    return $winner;
 }
 
 function refreshPage ($sec) : void {
@@ -41,35 +42,57 @@ if (isset($_SESSION["bet"]) && !empty($_SESSION["bet"])) {
     $bet = 0;
 }
 
+$playerScore = $blackJack->getPlayer()->getScore();
+$dealerScore = $blackJack->getDealer()->getScore();
+
+if ($playerScore === WIN_THRESHOLD) {
+    if ($playerScore === $dealerScore) {
+        $blackJack->getDealer()->surrender();
+        $blackJack->getPlayer()->surrender();
+    }
+    $blackJack->getDealer()->surrender();
+    $chips += 10;
+} else if ($dealerScore === WIN_THRESHOLD) {
+    $blackJack->getPlayer()->surrender();
+    $chips -= 5;
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST["hit"])) {
         $blackJack->getPlayer()->hit($blackJack->getDeck());
     }
     if (isset($_POST["stand"])) {
         $blackJack->getDealer()->hit($blackJack->getDeck());
-        $playerScore = $blackJack->getPlayer()->getScore();
-        $dealerScore = $blackJack->getDealer()->getScore();
         if ($playerScore > $dealerScore) {
             $blackJack->getDealer()->surrender();
         } else {
-           $blackJack->getPlayer()->surrender();
+            if ($dealerScore > WIN_THRESHOLD) {
+                $blackJack->getDealer()->surrender();
+            }
+            $blackJack->getPlayer()->surrender();
         }
     }
     if (isset($_POST["surrender"])) {
         $blackJack->getPlayer()->surrender();
     }
     if (isset($_POST["bet"]) && !empty($_POST["bet"])) {
-        $bet = $_POST["bet"];
-        $_SESSION["bet"] += $bet;
+        $bet += $_POST["bet"];
         $chips -= $bet;
+        $_SESSION["bet"] = $bet;
     }
 }
 
 if ($blackJack->getPlayer()->hasLost()) {
-    $whoWon = whoWon($dealer);
+    if ($blackJack->getDealer()->hasLost()) {
+        $whoWon = whoWon();
+    } else {
+        $whoWon = whoWon($dealer);
+    }
 } else if ($blackJack->getDealer()->hasLost()) {
     $whoWon = whoWon($player);
-    $chips += ($_SESSION["bet"] * 2);
+    if (isset($_SESSION["bet"])) {
+        $chips += ($_SESSION["bet"] * 2);
+    }
 }
 
 $_SESSION["chips"] = $chips;

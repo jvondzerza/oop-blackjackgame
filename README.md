@@ -13,11 +13,11 @@
 * fixed logic for stand and surrender buttons
 * created "end of game" logic
 * implemented a provisional betting system (still a lil' buggy)
+* implemented logic for the first turn rule
 
 ## //TODO
 
 * spruce the darn thing up some more
-* implement first turn rule?
 
 
 ## from
