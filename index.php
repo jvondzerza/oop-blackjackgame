@@ -12,8 +12,8 @@ $player = "Player";
 $dealer = "Dealer";
 $whoWon = "";
 
-function whoWon ($winner, $loser) : string {
-    return $winner . " won! " . $loser . " lost :'(.";
+function whoWon ($winner) : string {
+    return $winner . " won.";
 }
 
 function refreshPage ($sec) : void {
@@ -27,6 +27,18 @@ if (isset($_SESSION["blackJack"]) && !empty($_SESSION["blackJack"])) {
     $blackJack = $_SESSION["blackJack"];
 } else {
     $blackJack = new Blackjack();
+}
+
+if (isset($_SESSION["chips"]) && !empty($_SESSION["chips"])) {
+    $chips = $_SESSION["chips"];
+} else {
+    $chips = 100;
+}
+
+if (isset($_SESSION["bet"]) && !empty($_SESSION["bet"])) {
+    $bet = $_SESSION["bet"];
+} else {
+    $bet = 0;
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -46,28 +58,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST["surrender"])) {
         $blackJack->getPlayer()->surrender();
     }
+    if (isset($_POST["bet"]) && !empty($_POST["bet"])) {
+        $bet = $_POST["bet"];
+        $_SESSION["bet"] += $bet;
+        $chips -= $bet;
+    }
 }
 
 if ($blackJack->getPlayer()->hasLost()) {
-    $whoWon = whoWon($dealer, $player);
+    $whoWon = whoWon($dealer);
 } else if ($blackJack->getDealer()->hasLost()) {
-    $whoWon = whoWon($player, $dealer);
+    $whoWon = whoWon($player);
+    $chips += ($_SESSION["bet"] * 2);
 }
 
+$_SESSION["chips"] = $chips;
 $_SESSION["blackJack"] = $blackJack;
 
 if (!empty($whoWon)) {
-    session_unset();
-    refreshPage("2");
+    unset($_SESSION["blackJack"], $_SESSION["bet"]);
+    refreshPage("3");
 }
-
-
 
 /*$deck = new Deck();
 $deck->shuffle();
-
-$test = $deck->drawCard();
-echo $test->getUnicodeCharacter(true);
 
 foreach($deck->getCards() AS $card) {
     echo $card->getUnicodeCharacter(true);

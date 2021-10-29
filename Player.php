@@ -42,7 +42,7 @@ class Player
     public function showMeTheMoney() : string {
         $money = "";
         foreach($this->cards as $card) {
-             $money .= '<h1>' . $card->getUnicodeCharacter(true) . '</h1> ';
+             $money .= $card->getUnicodeCharacter(true) . " ";
         }
         return $money;
     }
