@@ -1,17 +1,18 @@
 <?php
 declare(strict_types=1);
 
-require 'Suit.php';
-require 'Card.php';
-require 'Deck.php';
-require 'Player.php';
-require 'Blackjack.php';
-require 'Dealer.php';
+require 'classes/Suit.php';
+require 'classes/Card.php';
+require 'classes/Deck.php';
+require 'classes/Player.php';
+require 'classes/Blackjack.php';
+require 'classes/Dealer.php';
 
 $player = "Player won.";
 $dealer = "Dealer won.";
 $whoWon = "";
 const WIN_THRESHOLD = 21;
+const MIN_POINTS = 15;
 
 function whoWon ($winner = "Tied game.") : string {
     return $winner;
@@ -30,6 +31,9 @@ if (isset($_SESSION["blackJack"]) && !empty($_SESSION["blackJack"])) {
     $blackJack = new Blackjack();
 }
 
+$playerScore = $blackJack->getPlayer()->getScore();
+$dealerScore = $blackJack->getDealer()->getScore();
+
 if (isset($_SESSION["chips"]) && !empty($_SESSION["chips"])) {
     $chips = $_SESSION["chips"];
 } else {
@@ -41,9 +45,6 @@ if (isset($_SESSION["bet"]) && !empty($_SESSION["bet"])) {
 } else {
     $bet = 0;
 }
-
-$playerScore = $blackJack->getPlayer()->getScore();
-$dealerScore = $blackJack->getDealer()->getScore();
 
 if ($playerScore === WIN_THRESHOLD) {
     $blackJack->getDealer()->surrender();
@@ -57,29 +58,44 @@ if ($playerScore === WIN_THRESHOLD) {
     $chips -= 5;
 }
 
+if ($playerScore > WIN_THRESHOLD) {
+    $blackJack->getPlayer()->surrender();
+}
+
+if ($dealerScore > WIN_THRESHOLD) {
+    $blackJack->getDealer()->surrender();
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
     if (isset($_POST["hit"])) {
         $blackJack->getPlayer()->hit($blackJack->getDeck());
     }
+
     if (isset($_POST["stand"])) {
         $blackJack->getDealer()->hit($blackJack->getDeck());
-        if ($playerScore > $dealerScore) {
-            $blackJack->getDealer()->surrender();
-        } else {
-            if ($dealerScore > WIN_THRESHOLD) {
+        if ($dealerScore >= MIN_POINTS) {
+            if ($dealerScore >= $playerScore) {
+                if ($dealerScore > WIN_THRESHOLD) {
+                    $blackJack->getDealer()->surrender();
+                } else {
+                    $blackJack->getPlayer()->surrender();
+                }
+            } else {
                 $blackJack->getDealer()->surrender();
             }
-            $blackJack->getPlayer()->surrender();
         }
     }
+
     if (isset($_POST["surrender"])) {
         $blackJack->getPlayer()->surrender();
     }
+
     if (isset($_POST["bet"]) && !empty($_POST["bet"])) {
         $bet += $_POST["bet"];
         $chips -= $bet;
-        $_SESSION["bet"] = $bet;
     }
+
 }
 
 if ($blackJack->getPlayer()->hasLost()) {
@@ -95,6 +111,7 @@ if ($blackJack->getPlayer()->hasLost()) {
     }
 }
 
+$_SESSION["bet"] = $bet;
 $_SESSION["chips"] = $chips;
 $_SESSION["blackJack"] = $blackJack;
 
@@ -102,13 +119,5 @@ if (!empty($whoWon)) {
     unset($_SESSION["blackJack"], $_SESSION["bet"]);
     refreshPage("3");
 }
-
-/*$deck = new Deck();
-$deck->shuffle();
-
-foreach($deck->getCards() AS $card) {
-    echo $card->getUnicodeCharacter(true);
-    echo '<br>';
-}*/
 
 require 'view.php';
