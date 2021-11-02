@@ -25,7 +25,7 @@ class Blackjack
     }
 
     /**
-     * @return Player
+     * @return Dealer
      */
     public function getDealer(): Dealer
     {

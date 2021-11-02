@@ -1,14 +1,16 @@
 <?php
 declare(strict_types=1);
 
+use JetBrains\PhpStorm\Pure;
+
 class Player
 {
-    private $lost = false;
+    private bool $lost = false;
 
-    private const WIN_THRESHOLD = 21;
+    protected const WIN_THRESHOLD = 21;
 
     /** @var Card[]  */
-    private $cards = [];
+    private array $cards = [];
 
     public function __construct(Deck $deck) {
         for ($i = 0; $i <2 ; $i++) {
@@ -27,7 +29,7 @@ class Player
         $this->lost = true;
     }
 
-    public function getScore() : int {
+    #[Pure] public function getScore() : int {
         $score = 0;
         foreach($this->cards as $card) {
             $score += $card->getValue();

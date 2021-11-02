@@ -34,8 +34,7 @@ echo '<h2>' . $whoWon . '</h2>';
             <input type="submit" name="hit" value="Hit">
             <input type="submit" name="stand" value="Stand">
             <input type="submit" name="surrender" value="Surrender">
-            <label for="game-interface">Bet: </label>
-            <input id="bet" type="number" name="bet" value="" min="5">
+            <label for="bet">Bet: </label><input id="bet" type="number" name="bet" value="" min="5">
         </section>
     </form>
 </div>

@@ -31,9 +31,6 @@ if (isset($_SESSION["blackJack"]) && !empty($_SESSION["blackJack"])) {
     $blackJack = new Blackjack();
 }
 
-$playerScore = $blackJack->getPlayer()->getScore();
-$dealerScore = $blackJack->getDealer()->getScore();
-
 if (isset($_SESSION["chips"]) && !empty($_SESSION["chips"])) {
     $chips = $_SESSION["chips"];
 } else {
@@ -45,6 +42,9 @@ if (isset($_SESSION["bet"]) && !empty($_SESSION["bet"])) {
 } else {
     $bet = 0;
 }
+
+$playerScore = $blackJack->getPlayer()->getScore();
+$dealerScore = $blackJack->getDealer()->getScore();
 
 if ($playerScore === WIN_THRESHOLD) {
     $blackJack->getDealer()->surrender();
@@ -58,44 +58,27 @@ if ($playerScore === WIN_THRESHOLD) {
     $chips -= 5;
 }
 
-if ($playerScore > WIN_THRESHOLD) {
-    $blackJack->getPlayer()->surrender();
-}
-
-if ($dealerScore > WIN_THRESHOLD) {
-    $blackJack->getDealer()->surrender();
-}
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
     if (isset($_POST["hit"])) {
         $blackJack->getPlayer()->hit($blackJack->getDeck());
     }
-
     if (isset($_POST["stand"])) {
         $blackJack->getDealer()->hit($blackJack->getDeck());
         if ($dealerScore >= MIN_POINTS) {
             if ($dealerScore >= $playerScore) {
-                if ($dealerScore > WIN_THRESHOLD) {
-                    $blackJack->getDealer()->surrender();
-                } else {
-                    $blackJack->getPlayer()->surrender();
-                }
+                $blackJack->getPlayer()->surrender();
             } else {
                 $blackJack->getDealer()->surrender();
             }
         }
     }
-
     if (isset($_POST["surrender"])) {
         $blackJack->getPlayer()->surrender();
     }
-
     if (isset($_POST["bet"]) && !empty($_POST["bet"])) {
         $bet += $_POST["bet"];
         $chips -= $bet;
     }
-
 }
 
 if ($blackJack->getPlayer()->hasLost()) {
